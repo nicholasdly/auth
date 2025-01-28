@@ -1,6 +1,8 @@
 "use client";
 
+import { useTransition } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { login } from "@/auth/actions";
@@ -18,6 +20,8 @@ import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 
 export function SignInForm() {
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<z.infer<typeof loginFormSchema>>({
     resolver: zodResolver(loginFormSchema),
     defaultValues: {
@@ -26,9 +30,18 @@ export function SignInForm() {
     },
   });
 
+  const onSubmit = async (values: z.infer<typeof loginFormSchema>) => {
+    startTransition(() => {
+      login(values).then(({ message }) => toast.error(message));
+    });
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(login)} className="flex flex-col gap-4">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-4"
+      >
         <FormField
           control={form.control}
           name="username"
@@ -55,7 +68,9 @@ export function SignInForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Sign in</Button>
+        <Button type="submit" disabled={isPending}>
+          Sign in
+        </Button>
       </form>
     </Form>
   );
