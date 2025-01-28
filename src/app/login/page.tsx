@@ -2,8 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getCurrentSession } from "@/auth/session";
-
-import { SignInForm } from "./form";
+import { LogInForm } from "@/components/login-form";
 
 export default async function Page() {
   const { session } = await getCurrentSession();
@@ -19,7 +18,7 @@ export default async function Page() {
             Log in to your account via username and password.
           </p>
         </div>
-        <SignInForm />
+        <LogInForm />
         <p className="text-center text-sm text-muted-foreground">
           Don&apos;t have an account?&nbsp;
           <Link

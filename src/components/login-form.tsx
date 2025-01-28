@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-export function SignInForm() {
+export function LogInForm() {
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof loginFormSchema>>({

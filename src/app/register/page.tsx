@@ -2,8 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getCurrentSession } from "@/auth/session";
-
-import { RegisterForm } from "./form";
+import { RegisterForm } from "@/components/register-form";
 
 export default async function Page() {
   const { session } = await getCurrentSession();

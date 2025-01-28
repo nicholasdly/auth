@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-import { logout } from "@/auth/actions";
 import { getCurrentSession } from "@/auth/session";
+import LogoutButton from "@/components/logout-button";
 import { Button } from "@/components/ui/button";
 
 export default async function Page() {
@@ -17,9 +17,7 @@ export default async function Page() {
               {JSON.stringify(user, null, 2)}
             </code>
           </pre>
-          <Button size="sm" variant="outline" onClick={logout}>
-            Sign out
-          </Button>
+          <LogoutButton />
         </>
       ) : (
         <>
