@@ -65,6 +65,6 @@ export class Throttler {
    * @param key A unique identifier for the request.
    */
   public async reset(key: string): Promise<void> {
-    await redis.del(key);
+    await redis.del(`${this.storageKey}:${key}`);
   }
 }
