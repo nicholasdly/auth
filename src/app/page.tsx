@@ -8,12 +8,15 @@ export default async function Page() {
   const { session, user } = await getCurrentSession();
 
   return (
-    <main className="mx-auto flex h-dvh max-w-sm flex-col items-center justify-center gap-4 p-4">
+    <main className="mx-auto flex h-dvh max-w-md flex-col items-center justify-center gap-4 p-4">
       {session ? (
         <>
-          <p>
-            Logged in as: <span className="font-semibold">{user.username}</span>
-          </p>
+          <p>You are logged in.</p>
+          <pre className="max-w-full overflow-x-scroll whitespace-pre rounded border bg-muted px-3 py-2 leading-snug text-muted-foreground">
+            <code className="font-mono text-xs font-medium">
+              {JSON.stringify(user, null, 2)}
+            </code>
+          </pre>
           <Button size="sm" variant="outline" onClick={logout}>
             Sign out
           </Button>
