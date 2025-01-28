@@ -1,7 +1,11 @@
 "use server";
 
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
+
+import { Throttler } from "@/redis/throttler";
+import { TokenBucket } from "@/redis/token-bucket";
 
 import { generateSessionToken } from "./helpers";
 import { verifyPassword } from "./password";
@@ -16,8 +20,19 @@ import {
 } from "./session";
 import { createUser, getUser } from "./user";
 
+// All authentication actions share the same token bucket so they can be
+// globally rate limited by IP address.
+const bucket = new TokenBucket("auth", 10, 1);
+
+// The `login` action throttler for each failed attempt.
+const throttler = new Throttler("login");
+
 export async function register(values: z.infer<typeof registerFormSchema>) {
-  // TODO: Rate limit here.
+  const headersStore = await headers();
+  const ip = headersStore.get("x-forwarded-for") ?? "unknown";
+
+  const allowed = await bucket.consume(ip, 1);
+  if (!allowed) return { message: "Slow down! You're going too fast." };
 
   // Parse and validate the form data, even if we already do on the client,
   // since server actions are fundamentally an API endpoint.
@@ -51,7 +66,11 @@ export async function register(values: z.infer<typeof registerFormSchema>) {
 }
 
 export async function login(values: z.infer<typeof loginFormSchema>) {
-  // TODO: Rate limit here.
+  const headersStore = await headers();
+  const ip = headersStore.get("x-forwarded-for") ?? "unknown";
+
+  const allowed = await bucket.consume(ip, 1);
+  if (!allowed) return { message: "Slow down! You're going too fast." };
 
   // Parse and validate the form data, even if we already do on the client,
   // since server actions are fundamentally an API endpoint.
@@ -61,15 +80,21 @@ export async function login(values: z.infer<typeof loginFormSchema>) {
   const { username, password } = data;
 
   const user = await getUser(username);
+
+  // Avoid returning at early here to prevent malicious actors from easily
+  // discovering genuine usernames via error message or response time.
+
   const validPassword = user
     ? await verifyPassword(user.passwordHash, password)
     : false;
 
-  // Avoid returning early here to prevent malicious actors from easily
-  // discovering genuine usernames via error message or response time.
-
   if (!user || !validPassword) {
-    return { message: "Invalid username or password." };
+    // prettier-ignore
+    return await throttler.consume(ip)
+      ? { message: "Invalid username or password." }
+      : { message: "You're blocked from logging in due to repeated failed attempts. Please come back later." };
+  } else {
+    await throttler.reset(ip);
   }
 
   const sessionToken = generateSessionToken();
@@ -83,10 +108,11 @@ export async function login(values: z.infer<typeof loginFormSchema>) {
 
 export async function logout() {
   const { session } = await getCurrentSession();
-  if (!session) return;
+  if (!session) return { message: "Unable to logout! Try reloading the page." };
 
   await invalidateSession(session.id);
   await invalidateExpiredSessions();
-
   await deleteSessionTokenCookie();
+
+  return redirect("/");
 }
