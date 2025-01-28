@@ -2,6 +2,8 @@ import { pgTable } from "drizzle-orm/pg-core";
 
 export const users = pgTable("users", (t) => ({
   id: t.uuid().primaryKey().defaultRandom(),
+  username: t.text().notNull(),
+  passwordHash: t.text().notNull(),
 }));
 
 export const sessions = pgTable("sessions", (t) => ({

@@ -1,6 +1,6 @@
 import "server-only";
 
-import { eq } from "drizzle-orm";
+import { eq, lt } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
@@ -8,12 +8,7 @@ import { db } from "@/db";
 import { sessions, users } from "@/db/schema";
 import type { Session, User } from "@/db/types";
 import { sha256 } from "@oslojs/crypto/sha2";
-import {
-  encodeBase32LowerCaseNoPadding,
-  encodeHexLowerCase,
-} from "@oslojs/encoding";
-
-import { generateRandomBytes } from "./helpers";
+import { encodeHexLowerCase } from "@oslojs/encoding";
 
 // Sessions will expire after 7 days.
 // Be sure this aligns in the middleware too!
@@ -22,24 +17,6 @@ const sessionDuration = 1000 * 60 * 60 * 24 * 7;
 export type SessionValidationResult =
   | { session: Session; user: User }
   | { session: null; user: null };
-
-/**
- * Generates a new, random session token.
- * @returns A session token.
- */
-export function generateSessionToken() {
-  // The session token should NOT be a random string. Instead, we generate at
-  // least 20 random bytes from a secure source. We could use UUID v4 here,
-  // but the RFC does not mandate that UUIDs are generated using a secure
-  // random source.
-  const bytes = generateRandomBytes();
-
-  // We can use any encoding scheme, but base32 is case insensitive and only
-  // uses alphanumeric letters while being more compact than hex encoding.
-  const token = encodeBase32LowerCaseNoPadding(bytes);
-
-  return token;
-}
 
 /**
  * Creates a new session in the database for a specified user given a session
@@ -54,20 +31,23 @@ export async function createSession(token: string, userId: string) {
   // leaked, the attacker won't be able to retrieve valid tokens.
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
-  const session: Session = {
-    id: sessionId,
-    userId,
-    expiresAt: new Date(Date.now() + sessionDuration),
-  };
-  await db.insert(sessions).values(session);
+  const [session] = await db
+    .insert(sessions)
+    .values({
+      id: sessionId,
+      userId,
+      expiresAt: new Date(Date.now() + sessionDuration),
+    })
+    .returning();
 
   return session;
 }
 
 /**
  * Validates a specified session token, verifying it is associated with an
- * active user and session. Will extend the session expiration date if
- * @param token
+ * active user and session. Will extend the session expiration date if the
+ * session is near expiration.
+ * @param token The session token.
  * @returns If the session token is valid, returns the session and user object.
  * Otherwise, returns `null` for both.
  */
@@ -77,11 +57,18 @@ export async function validateSessionToken(
   const sessionId = encodeHexLowerCase(sha256(new TextEncoder().encode(token)));
 
   const result = await db.transaction(async (tx) => {
-    const [{ users: user, sessions: session }] = await tx
-      .select()
+    const [data] = await tx
+      .select({
+        user: users,
+        session: sessions,
+      })
       .from(sessions)
       .innerJoin(users, eq(sessions.userId, users.id))
-      .where(eq(sessions.id, sessionId));
+      .where(eq(sessions.id, sessionId))
+      .limit(1);
+
+    const user = data?.user;
+    const session = data?.session;
 
     // Does the session exist in our database?
     if (!user || !session) return { session: null, user: null };
@@ -113,6 +100,13 @@ export async function validateSessionToken(
  */
 export async function invalidateSession(sessionId: string) {
   await db.delete(sessions).where(eq(sessions.id, sessionId));
+}
+
+/**
+ * Invalidates all expired sessions by deleting them from the database.
+ */
+export async function invalidateExpiredSessions() {
+  await db.delete(sessions).where(lt(sessions.expiresAt, new Date()));
 }
 
 /**
@@ -153,9 +147,9 @@ export async function deleteSessionTokenCookie() {
 export const getCurrentSession = cache(
   async (): Promise<SessionValidationResult> => {
     const cookieStore = await cookies();
-    const token = cookieStore.get("session")?.value ?? null;
+    const token = cookieStore.get("session")?.value;
 
-    if (token === null) return { session: null, user: null };
+    if (!token) return { session: null, user: null };
 
     const result = await validateSessionToken(token);
     return result;
