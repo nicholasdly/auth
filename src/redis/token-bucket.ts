@@ -1,47 +1,30 @@
 import { redis } from ".";
 
-/**
- * @see https://lucia-auth.com/rate-limit/token-bucket
- */
 const hash = await redis.scriptLoad(`
--- Returns 1 if allowed, 0 if not
-local key                   = KEYS[1]
-local max                   = tonumber(ARGV[1])
+local key = KEYS[1]
+local max = tonumber(ARGV[1])
 local refillIntervalSeconds = tonumber(ARGV[2])
-local cost                  = tonumber(ARGV[3])
-local now                   = tonumber(ARGV[4]) -- Current unix time in seconds
+local cost = tonumber(ARGV[3])
+local now = tonumber(ARGV[4])
 
-local fields = redis.call("HGETALL", key)
-
-if #fields == 0 then
-	local expiresInSeconds = cost * refillIntervalSeconds
-	redis.call("HSET", key, "count", max - cost, "refilled_at", now)
-	redis.call("EXPIRE", key, expiresInSeconds)
-	return {1}
-end
-
-local count = 0
-local refilledAt = 0
-for i = 1, #fields, 2 do
-	if fields[i] == "count" then
-		count = tonumber(fields[i+1])
-	elseif fields[i] == "refilled_at" then
-		refilledAt = tonumber(fields[i+1])
-	end
-end
+local data = redis.call("HMGET", key, "count", "refilled_at")
+local count = tonumber(data[1]) or max - cost
+local refilledAt = tonumber(data[2]) or now
 
 local refill = math.floor((now - refilledAt) / refillIntervalSeconds)
-count = math.min(count + refill, max)
-refilledAt = refilledAt + refill * refillIntervalSeconds
+if refill > 0 then
+  count = math.min(count + refill, max)
+end
 
 if count < cost then
 	return {0}
 end
 
 count = count - cost
-local expiresInSeconds = (max - count) * refillIntervalSeconds
+
 redis.call("HSET", key, "count", count, "refilled_at", now)
-redis.call("EXPIRE", key, expiresInSeconds)
+redis.call("EXPIRE", key, (max - count) * refillIntervalSeconds)
+
 return {1}
 `);
 
@@ -58,7 +41,7 @@ export class TokenBucket {
    * rejected.
    * @param storageKey A unique identifier for the token bucket.
    * @param max Maximum number of tokens stored in the bucket.
-   * @param refillRate The number of tokens regenerated per second.
+   * @param refillRate The number of seconds to wait before restoring one token.
    */
   constructor(storageKey: string, max: number, refillRate: number) {
     this.storageKey = storageKey;
