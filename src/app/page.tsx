@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { getCurrentSession } from "@/auth/session";
 import LogoutButton from "@/components/logout-button";
@@ -6,6 +7,8 @@ import { Button } from "@/components/ui/button";
 
 export default async function Page() {
   const { session, user } = await getCurrentSession();
+
+  if (user && !user.verifiedAt) redirect("/verify");
 
   return (
     <main className="mx-auto flex h-dvh max-w-md flex-col items-center justify-center gap-4 p-4">

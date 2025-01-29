@@ -15,6 +15,13 @@
       "when": 1738085292997,
       "tag": "0001_yummy_metal_master",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1738111053316,
+      "tag": "0002_boring_talisman",
+      "breakpoints": true
     }
   ]
 }

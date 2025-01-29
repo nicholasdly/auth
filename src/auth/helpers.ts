@@ -1,6 +1,9 @@
 import "server-only";
 
-import { encodeBase32LowerCaseNoPadding } from "@oslojs/encoding";
+import {
+  encodeBase32LowerCaseNoPadding,
+  encodeBase32UpperCaseNoPadding,
+} from "@oslojs/encoding";
 
 /**
  * Generate a cryptographically secure random byte array of a specified length.
@@ -29,4 +32,15 @@ export function generateSessionToken() {
   const token = encodeBase32LowerCaseNoPadding(bytes);
 
   return token;
+}
+
+/**
+ * Generates a new, random email verification code.
+ * @returns An email verification code.
+ */
+export function generateVerificationCode() {
+  const bytes = generateRandomBytes(5);
+  const code = encodeBase32UpperCaseNoPadding(bytes);
+
+  return code.slice(0, 6);
 }
