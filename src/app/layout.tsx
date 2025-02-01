@@ -36,11 +36,11 @@ export default function RootLayout({
         className={cn(
           geistSans.variable,
           geistMono.variable,
-          "font-sans antialiased",
+          "dark font-sans antialiased",
         )}
       >
         {children}
-        <Toaster theme="light" position="bottom-center" richColors />
+        <Toaster theme="dark" position="bottom-center" richColors />
       </body>
     </html>
   );
