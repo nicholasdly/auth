@@ -21,9 +21,8 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "nicholasdly/auth",
-  description:
-    "Examples of implementing your own authentication and authorization systems in Next.js.",
+  title: "Next.js Auth Starter",
+  description: "Get started rolling your own auth with Next.js and Postgres.",
 };
 
 export default function RootLayout({

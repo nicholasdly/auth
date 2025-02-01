@@ -1,44 +1,64 @@
-# nicholasdly/auth
+# Next.js Auth Starter
 
-> Examples of implementing your own authentication and authorization systems in Next.js.
+This is a starter template for rolling your own auth using **Next.js**. This template is intentionally minimal and to be used as a learning resource. The general concepts implemented in this codebase can be applied anywhere, not just Next.js.
 
-I grew tired of doing the same setup for authentication and authorization over and over again every time I start a new project. I created this repository as a collection of examples that can basically be copy-and-paste'd into a project.
+You can learn more about rolling your own auth here:
 
-Most of this codebase is sourced from [Lucia](https://lucia-auth.com/)'s example projects, with minor changes and an updated user interface to use tools that I more commonly use.
+- [The Copenhagen Book](https://thecopenhagenbook.com/)
+- [Lucia](https://lucia-auth.com/).
 
-The concepts used in these examples are not completely specific to [Next.js](https://nextjs.org/) or [PostgreSQL](https://www.postgresql.org/), since the core auth principles apply to all frameworks and stacks. For a more general guideline on implementing auth in web applications, I highly recommend [The Copenhagen Book](https://thecopenhagenbook.com/).
+**Demo: [https://next-auth-start.vercel.app/](https://next-auth-start.vercel.app/)**
 
-## Development
+## Features
 
-**nicholasdly/auth** is built with the following tools:
+- Marketing landing page (`/`) with animated Terminal element
+- Pricing page (`/pricing`) which connects to Stripe Checkout
+- Dashboard pages with CRUD operations on users/teams
+- Basic RBAC with Owner and Member roles
+- Subscription management with Stripe Customer Portal
+- Email/password authentication with JWTs stored to cookies
+- Global middleware to protect logged-in routes
+- Local middleware to protect Server Actions or validate Zod schemas
+- Activity logging system for any user events
 
-- **Web Framework**: [Next.js](https://nextjs.org/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/) and [shadcn/ui](https://ui.shadcn.com/)
-- **Database**: [PostgreSQL](https://www.postgresql.org/) with [Drizzle ORM](https://orm.drizzle.team/)
+## Tech Stack
 
-### Installation
+- **Framework**: [Next.js](https://nextjs.org/)
+- **Database**: [Postgres](https://www.postgresql.org/)
+- **ORM**: [Drizzle](https://orm.drizzle.team/)
+- **UI Library**: [shadcn/ui](https://ui.shadcn.com/)
 
-1. Fork and clone this repository using `git clone`.
+## Getting Started
 
-2. Install npm packages:
-
-```zsh
-npm install
+```bash
+git clone https://github.com/nicholasdly/next-auth-starter.git
+cd saas-starter
+pnpm install
 ```
 
-3. Create a `.env.local` file based off of [`.env.example`](.env.example), and provide the necessary keys. I'm using a [Neon](https://neon.tech/) Postgres database, so if you are using a different kind of database be sure to update the [schema](src/db/schema.ts) and migrations.
+## Running Locally
 
-4. Run the database migrations.
+Create and populate your `.env.local` file based off of the `.env.example` file.
 
-```zsh
+```bash
+DATABASE_URL=***
+UPSTASH_REDIS_REST_URL=***
+UPSTASH_REDIS_REST_TOKEN=***
+```
+
+Then run your database migrations:
+
+```bash
 npm run db:migrate
 ```
 
-5. Run the following command to start a local development server.
+Finally, run the Next.js development server:
 
-```zsh
+```bash
 npm run dev
 ```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser to see the app in action.
 
 ## License
 

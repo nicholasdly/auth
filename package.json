@@ -1,5 +1,5 @@
 {
-  "name": "auth",
+  "name": "next-auth-starter",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -44,7 +44,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@trivago/prettier-plugin-sort-imports": "^5.2.1",
-    "@types/node": "^20",
+    "@types/node": "^22.13.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "drizzle-kit": "^0.30.3",
