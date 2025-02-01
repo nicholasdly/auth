@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { getCurrentSession } from "@/auth/session";
+import DeleteUserButton from "@/components/delete-user-button";
 import LogoutButton from "@/components/logout-button";
 import { Button } from "@/components/ui/button";
 
@@ -20,7 +21,10 @@ export default async function Page() {
               {JSON.stringify(user, null, 2)}
             </code>
           </pre>
-          <LogoutButton />
+          <div className="flex gap-2">
+            <DeleteUserButton />
+            <LogoutButton />
+          </div>
         </>
       ) : (
         <>
