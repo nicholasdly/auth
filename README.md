@@ -5,21 +5,21 @@ This is a starter template for rolling your own auth using **Next.js**. This tem
 You can learn more about rolling your own auth here:
 
 - [The Copenhagen Book](https://thecopenhagenbook.com/)
-- [Lucia](https://lucia-auth.com/).
+- [Lucia](https://lucia-auth.com/)
 
 **Demo: [https://next-auth-start.vercel.app/](https://next-auth-start.vercel.app/)**
 
 ## Features
 
-- Marketing landing page (`/`) with animated Terminal element
-- Pricing page (`/pricing`) which connects to Stripe Checkout
-- Dashboard pages with CRUD operations on users/teams
-- Basic RBAC with Owner and Member roles
-- Subscription management with Stripe Customer Portal
-- Email/password authentication with JWTs stored to cookies
-- Global middleware to protect logged-in routes
-- Local middleware to protect Server Actions or validate Zod schemas
-- Activity logging system for any user events
+- Control every step of the authentication process and own all of your data
+- Fully type-safe
+- Database sessions
+- Credentials login (email/username + password)
+- Email code verification
+- Powered by high performance, zero third-party dependent packages:
+  - Award winning password hashing via `@node-rs/argon2`
+  - Cryptographically secure random generation via `@oslojs/crypto`
+  - SHA-256 hashing, ensuring token security during a database leak, via `@oslojs/encoding`
 
 ## Tech Stack
 
@@ -32,8 +32,8 @@ You can learn more about rolling your own auth here:
 
 ```bash
 git clone https://github.com/nicholasdly/next-auth-starter.git
-cd saas-starter
-pnpm install
+cd next-auth-starter
+npm install
 ```
 
 ## Running Locally
