@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 
 import { getCurrentSession } from "@/auth/session";
-import { Button } from "@/components/ui/button";
 import { VerificationForm } from "@/components/verification-form";
 
 export default async function Page() {
@@ -22,12 +21,12 @@ export default async function Page() {
           </p>
         </div>
         <VerificationForm />
-        <p className="mt-2 text-center text-sm text-muted-foreground">
+        {/* <p className="mt-2 text-center text-sm text-muted-foreground">
           Didn&apos;t receive an email?&nbsp;
           <Button variant="link" className="h-fit p-0">
             Resend code
           </Button>
-        </p>
+        </p> */}
       </div>
     </main>
   );

@@ -44,6 +44,7 @@ Create and populate your `.env.local` file based off of the `.env.example` file.
 DATABASE_URL=***
 UPSTASH_REDIS_REST_URL=***
 UPSTASH_REDIS_REST_TOKEN=***
+RESEND_API_KEY=***
 ```
 
 Then run your database migrations:

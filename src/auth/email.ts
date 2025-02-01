@@ -2,12 +2,16 @@ import "server-only";
 
 import { and, eq } from "drizzle-orm";
 import { cookies } from "next/headers";
+import { Resend } from "resend";
 
+import { VerificationEmailTemplate } from "@/components/emails/verification-email-template";
 import { db } from "@/db";
 import { verificationRequests } from "@/db/schema";
 import { VerificationRequest } from "@/db/types";
 
 import { generateSessionToken, generateVerificationCode } from "./helpers";
+
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Verification requests will expire after 15 minutes.
 const requestDuration = 1000 * 60 * 15;
@@ -58,7 +62,14 @@ export async function deleteUserVerificationRequests(userId: string) {
 }
 
 export async function sendVerificationEmail(email: string, code: string) {
-  // TODO: Replace with your email service (ex. Resend).
+  await resend.emails.send({
+    from: "next-auth-starter <next-auth-starter@nas.nicholasly.com>",
+    to: email,
+    subject: "Verify your email",
+    react: VerificationEmailTemplate({ code }),
+    text: `Your verification code is: ${code}`,
+  });
+
   console.log(`To ${email}: Your verification code is ${code}`);
 }
 
