@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { register } from "@/auth/actions";
+import { register } from "@/auth/actions/register";
 import { registerFormSchema } from "@/auth/schemas";
 import { Button } from "@/components/ui/button";
 import {

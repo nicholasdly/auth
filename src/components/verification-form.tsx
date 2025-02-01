@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-import { verify } from "@/auth/actions";
+import { verifyEmail } from "@/auth/actions/verify-email";
 import { verificationFormSchema } from "@/auth/schemas";
 import { Button } from "@/components/ui/button";
 import {
@@ -35,7 +35,7 @@ export function VerificationForm() {
 
   const onSubmit = async (values: z.infer<typeof verificationFormSchema>) => {
     startTransition(() => {
-      verify(values).then(({ message }) => toast.error(message));
+      verifyEmail(values).then(({ message }) => toast.error(message));
     });
   };
 
@@ -56,6 +56,9 @@ export function VerificationForm() {
                   pattern={REGEXP_ONLY_DIGITS_AND_CHARS}
                   maxLength={6}
                   spellCheck={false}
+                  onComplete={form.handleSubmit(onSubmit)}
+                  disabled={isPending}
+                  autoFocus
                   {...field}
                 >
                   <InputOTPGroup>
@@ -68,7 +71,7 @@ export function VerificationForm() {
                   </InputOTPGroup>
                 </InputOTP>
               </FormControl>
-              <FormMessage />
+              <FormMessage className="text-center" />
             </FormItem>
           )}
         />

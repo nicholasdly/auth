@@ -3,7 +3,7 @@
 import { useTransition } from "react";
 import { toast } from "sonner";
 
-import { logout } from "@/auth/actions";
+import { logout } from "@/auth/actions/logout";
 
 import { Button } from "./ui/button";
 
