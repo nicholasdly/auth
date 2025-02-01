@@ -27,6 +27,7 @@ You can learn more about rolling your own auth here:
 - **Database**: [Postgres](https://www.postgresql.org/)
 - **ORM**: [Drizzle](https://orm.drizzle.team/)
 - **UI Library**: [shadcn/ui](https://ui.shadcn.com/)
+- **Email**: [Resend](https://resend.com/)
 
 ## Getting Started
 
