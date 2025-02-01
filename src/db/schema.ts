@@ -5,12 +5,15 @@ export const users = pgTable(
   (t) => ({
     id: t.uuid().primaryKey().defaultRandom(),
     email: t.text().notNull().unique(),
-    username: t.text().notNull(),
+    username: t.text().notNull().unique(),
     passwordHash: t.text().notNull(),
     createdAt: t.timestamp({ withTimezone: true }).notNull().defaultNow(),
     verifiedAt: t.timestamp({ withTimezone: true }),
   }),
-  (table) => [uniqueIndex("email_idx").on(table.email)],
+  (table) => [
+    uniqueIndex("username_idx").on(table.username),
+    uniqueIndex("email_idx").on(table.email),
+  ],
 );
 
 export const sessions = pgTable("sessions", (t) => ({
